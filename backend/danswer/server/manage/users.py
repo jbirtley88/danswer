@@ -277,8 +277,6 @@ async def verify_user_logged_in(
     user: User | None = Depends(optional_user),
     db_session: Session = Depends(get_session),
 ) -> UserInfo:
-    
-    # print(type(user_info))
     # NOTE: this does not use `current_user` / `current_admin_user` because we don't want
     # to enforce user verification here - the frontend always wants to get the info about
     # the current user regardless of if they are currently verified

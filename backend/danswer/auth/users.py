@@ -246,11 +246,9 @@ def get_database_strategy(
         expiry_length = SESSION_EXPIRE_TIME_SECONDS
         access_token = await access_token_db.get_by_token(token)
         if access_token:
-            print("WRITING TOKEN")
             await access_token_db.update(
                 access_token, update_dict={"expiry_length": expiry_length}
             )
-
         return token
 
     strategy.write_token = write_token_with_expiry

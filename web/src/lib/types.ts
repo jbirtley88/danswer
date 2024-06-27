@@ -24,11 +24,6 @@ export interface User {
   oidc_expiry: Date;
 }
 
-
-// current_token_expiry_length_seconds
-// oidc_expiry
-
-
 export interface MinimalUserSnapshot {
   id: string;
   email: string;
