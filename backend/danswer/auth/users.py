@@ -5,6 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 from typing import Tuple
+from datetime import datetime, timezone
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -186,9 +187,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         )
         
         if expires_at:
-            user.oidc_expiry = expires_at
-            await self.user_db.update(user, update_dict={"oidc_expiry": expires_at})
 
+            oidc_expiry = datetime.fromtimestamp(expires_at, tz=timezone.utc)
+            await self.user_db.update(user, update_dict={"oidc_expiry": oidc_expiry})
         return user
 
 

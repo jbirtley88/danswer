@@ -1050,7 +1050,6 @@ export function ChatPage({
         ? "0px"
         : `${usedSidebarWidth}px`;
     }
-
     setShowDocSidebar((showDocSidebar) => !showDocSidebar); // Toggle the state which will in turn toggle the class
   };
 
@@ -1073,7 +1072,7 @@ export function ChatPage({
   const [editingRetrievalEnabled, setEditingRetrievalEnabled] = useState(false);
   const sidebarElementRef = useRef<HTMLDivElement>(null);
   const innerSidebarElementRef = useRef<HTMLDivElement>(null);
-  const secondsUntilExpiration = getSecondsUntilExpiration(user);
+  // const secondsUntilExpiration = getSecondsUntilExpiration(user);
 
   const currentPersona = selectedAssistant || livePersona;
 
@@ -1091,9 +1090,9 @@ export function ChatPage({
     <>
       <HealthCheckBanner />
       <InstantSSRAutoRefresh />
-      <div className="m-3">
+      {/* <div className="m-3">
         <HealthCheckBanner secondsUntilExpiration={secondsUntilExpiration} />
-      </div>
+      </div> */}
 
       {/* ChatPopup is a custom popup that displays a admin-specified message on initial user visit. 
       Only used in the EE version of the app. */}

@@ -3,6 +3,7 @@ Revision ID: 91ffac7e65b3
 Revises: bc9771dccadf
 Create Date: 2024-06-24 09:39:56.462242
 """
+
 from alembic import op
 import sqlalchemy as sa
 
@@ -18,7 +19,7 @@ def upgrade() -> None:
     op.add_column(
         "accesstoken", sa.Column("expiry_length", sa.Integer(), nullable=True)
     )
-    op.add_column("user", sa.Column("oidc_expiry", sa.Integer(), nullable=True))
+    op.add_column("user", sa.Column("oidc_expiry", sa.DateTime(timezone=True), nullable=True))
 
 
 def downgrade() -> None:
