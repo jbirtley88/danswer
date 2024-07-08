@@ -9,7 +9,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "91ffac7e65b3"
-down_revision = "bc9771dccadf"
+down_revision = "4505fd7302e1"
 branch_labels = None
 depends_on = None
 
@@ -19,7 +19,9 @@ def upgrade() -> None:
     op.add_column(
         "accesstoken", sa.Column("expiry_length", sa.Integer(), nullable=True)
     )
-    op.add_column("user", sa.Column("oidc_expiry", sa.DateTime(timezone=True), nullable=True))
+    op.add_column(
+        "user", sa.Column("oidc_expiry", sa.DateTime(timezone=True), nullable=True)
+    )
 
 
 def downgrade() -> None:
