@@ -376,20 +376,20 @@ export function ChatPage({
     useState<number | null>(null);
   const { aiMessage } = selectedMessageForDocDisplay
     ? getHumanAndAIMessageFromMessageNumber(
-      messageHistory,
-      selectedMessageForDocDisplay
-    )
+        messageHistory,
+        selectedMessageForDocDisplay
+      )
     : { aiMessage: null };
 
   const [selectedPersona, setSelectedPersona] = useState<Persona | undefined>(
     existingChatSessionPersonaId !== undefined
       ? filteredAssistants.find(
-        (persona) => persona.id === existingChatSessionPersonaId
-      )
+          (persona) => persona.id === existingChatSessionPersonaId
+        )
       : defaultSelectedPersonaId !== undefined
         ? filteredAssistants.find(
-          (persona) => persona.id === defaultSelectedPersonaId
-        )
+            (persona) => persona.id === defaultSelectedPersonaId
+          )
         : undefined
   );
   const livePersona =
@@ -1076,7 +1076,6 @@ export function ChatPage({
 
   const currentPersona = selectedAssistant || livePersona;
 
-
   const updateSelectedAssistant = (newAssistant: Persona | null) => {
     setSelectedAssistant(newAssistant);
     if (newAssistant) {
@@ -1293,7 +1292,7 @@ export function ChatPage({
                             const isShowingRetrieved =
                               (selectedMessageForDocDisplay !== null &&
                                 selectedMessageForDocDisplay ===
-                                message.messageId) ||
+                                  message.messageId) ||
                               (selectedMessageForDocDisplay ===
                                 TEMP_USER_MESSAGE_ID &&
                                 i === messageHistory.length - 1);
@@ -1598,9 +1597,9 @@ export function ChatPage({
                       </ResizableSection>
                     </div>
                   ) : // Another option is to use a div with the width set to the initial width, so that the
-                    // chat section appears in the same place as before
-                    // <div style={documentSidebarInitialWidth ? {width: documentSidebarInitialWidth} : {}}></div>
-                    null}
+                  // chat section appears in the same place as before
+                  // <div style={documentSidebarInitialWidth ? {width: documentSidebarInitialWidth} : {}}></div>
+                  null}
                 </>
               )}
             </Dropzone>

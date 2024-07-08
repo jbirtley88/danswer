@@ -130,7 +130,7 @@ export default async function Home() {
     | undefined;
   let searchTypeDefault: SearchType =
     storedSearchType !== undefined &&
-      SearchType.hasOwnProperty(storedSearchType)
+    SearchType.hasOwnProperty(storedSearchType)
       ? (storedSearchType as SearchType)
       : SearchType.SEMANTIC; // default to semantic
 

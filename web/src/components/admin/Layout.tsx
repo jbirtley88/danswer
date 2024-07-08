@@ -64,8 +64,8 @@ export async function Layout({ children }: { children: React.ReactNode }) {
       return redirect("/auth/waiting-on-verification");
     }
   }
-  
-  const secondsUntilExpiration = getSecondsUntilExpiration(user)
+
+  const secondsUntilExpiration = getSecondsUntilExpiration(user);
 
   return (
     <div className="h-screen overflow-y-hidden">
@@ -212,25 +212,25 @@ export async function Layout({ children }: { children: React.ReactNode }) {
                   },
                   ...(SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED
                     ? [
-                      {
-                        name: (
-                          <div className="flex">
-                            <GroupsIcon size={18} />
-                            <div className="ml-1">Groups</div>
-                          </div>
-                        ),
-                        link: "/admin/groups",
-                      },
-                      {
-                        name: (
-                          <div className="flex">
-                            <KeyIcon size={18} />
-                            <div className="ml-1">API Keys</div>
-                          </div>
-                        ),
-                        link: "/admin/api-key",
-                      },
-                    ]
+                        {
+                          name: (
+                            <div className="flex">
+                              <GroupsIcon size={18} />
+                              <div className="ml-1">Groups</div>
+                            </div>
+                          ),
+                          link: "/admin/groups",
+                        },
+                        {
+                          name: (
+                            <div className="flex">
+                              <KeyIcon size={18} />
+                              <div className="ml-1">API Keys</div>
+                            </div>
+                          ),
+                          link: "/admin/api-key",
+                        },
+                      ]
                     : []),
                   {
                     name: (
@@ -245,39 +245,39 @@ export async function Layout({ children }: { children: React.ReactNode }) {
               },
               ...(SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED
                 ? [
-                  {
-                    name: "Performance",
-                    items: [
-                      {
-                        name: (
-                          <div className="flex">
-                            <FiActivity size={18} />
-                            <div className="ml-1">Usage Statistics</div>
-                          </div>
-                        ),
-                        link: "/admin/performance/usage",
-                      },
-                      {
-                        name: (
-                          <div className="flex">
-                            <DatabaseIcon size={18} />
-                            <div className="ml-1">Query History</div>
-                          </div>
-                        ),
-                        link: "/admin/performance/query-history",
-                      },
-                      {
-                        name: (
-                          <div className="flex">
-                            <FiBarChart2 size={18} />
-                            <div className="ml-1">Custom Analytics</div>
-                          </div>
-                        ),
-                        link: "/admin/performance/custom-analytics",
-                      },
-                    ],
-                  },
-                ]
+                    {
+                      name: "Performance",
+                      items: [
+                        {
+                          name: (
+                            <div className="flex">
+                              <FiActivity size={18} />
+                              <div className="ml-1">Usage Statistics</div>
+                            </div>
+                          ),
+                          link: "/admin/performance/usage",
+                        },
+                        {
+                          name: (
+                            <div className="flex">
+                              <DatabaseIcon size={18} />
+                              <div className="ml-1">Query History</div>
+                            </div>
+                          ),
+                          link: "/admin/performance/query-history",
+                        },
+                        {
+                          name: (
+                            <div className="flex">
+                              <FiBarChart2 size={18} />
+                              <div className="ml-1">Custom Analytics</div>
+                            </div>
+                          ),
+                          link: "/admin/performance/custom-analytics",
+                        },
+                      ],
+                    },
+                  ]
                 : []),
               {
                 name: "Settings",
@@ -293,16 +293,16 @@ export async function Layout({ children }: { children: React.ReactNode }) {
                   },
                   ...(SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED
                     ? [
-                      {
-                        name: (
-                          <div className="flex">
-                            <FiImage size={18} />
-                            <div className="ml-1">Whitelabeling</div>
-                          </div>
-                        ),
-                        link: "/admin/whitelabeling",
-                      },
-                    ]
+                        {
+                          name: (
+                            <div className="flex">
+                              <FiImage size={18} />
+                              <div className="ml-1">Whitelabeling</div>
+                            </div>
+                          ),
+                          link: "/admin/whitelabeling",
+                        },
+                      ]
                     : []),
                 ],
               },

@@ -19,7 +19,7 @@ export const HealthCheckBanner = ({
       () => {
         setExpired(true);
       },
-      (secondsUntilExpiration * 1000) - 200
+      secondsUntilExpiration * 1000 - 200
     );
   }
 
