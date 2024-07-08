@@ -1,6 +1,6 @@
+from datetime import datetime
 from typing import Any
 from typing import TYPE_CHECKING
-
 
 from pydantic import BaseModel
 from pydantic import root_validator
@@ -19,9 +19,9 @@ from danswer.indexing.models import EmbeddingModelDetail
 from danswer.server.features.persona.models import PersonaSnapshot
 from danswer.server.models import FullUserSnapshot
 from danswer.server.models import InvitedUserSnapshot
-from datetime import datetime
+
 if TYPE_CHECKING:
-    from danswer.db.models import User as UserModel
+    pass
 
 
 class VersionResponse(BaseModel):

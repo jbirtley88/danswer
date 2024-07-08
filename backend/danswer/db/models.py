@@ -11,6 +11,7 @@ from uuid import UUID
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseOAuthAccountTableUUID
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
 from fastapi_users_db_sqlalchemy.access_token import SQLAlchemyBaseAccessTokenTableUUID
+from fastapi_users_db_sqlalchemy.generics import TIMESTAMPAware
 from sqlalchemy import Boolean
 from sqlalchemy import DateTime
 from sqlalchemy import Enum
@@ -31,8 +32,6 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import LargeBinary
 from sqlalchemy.types import TypeDecorator
-from fastapi_users_db_sqlalchemy.generics import GUID, TIMESTAMPAware, now_utc
-
 
 from danswer.auth.schemas import UserRole
 from danswer.configs.constants import DEFAULT_BOOST
@@ -121,7 +120,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     chosen_assistants: Mapped[list[int]] = mapped_column(
         postgresql.ARRAY(Integer), nullable=True
     )
-    
+
     oidc_expiry: Mapped[datetime.datetime] = mapped_column(
         TIMESTAMPAware(timezone=True), nullable=True
     )
@@ -436,9 +435,9 @@ class Connector(Base):
         back_populates="connector",
         cascade="all, delete-orphan",
     )
-    documents_by_connector: Mapped[list["DocumentByConnectorCredentialPair"]] = (
-        relationship("DocumentByConnectorCredentialPair", back_populates="connector")
-    )
+    documents_by_connector: Mapped[
+        list["DocumentByConnectorCredentialPair"]
+    ] = relationship("DocumentByConnectorCredentialPair", back_populates="connector")
     index_attempts: Mapped[list["IndexAttempt"]] = relationship(
         "IndexAttempt", back_populates="connector"
     )
@@ -464,9 +463,9 @@ class Credential(Base):
         back_populates="credential",
         cascade="all, delete-orphan",
     )
-    documents_by_credential: Mapped[list["DocumentByConnectorCredentialPair"]] = (
-        relationship("DocumentByConnectorCredentialPair", back_populates="credential")
-    )
+    documents_by_credential: Mapped[
+        list["DocumentByConnectorCredentialPair"]
+    ] = relationship("DocumentByConnectorCredentialPair", back_populates="credential")
     index_attempts: Mapped[list["IndexAttempt"]] = relationship(
         "IndexAttempt", back_populates="credential"
     )
@@ -1350,11 +1349,11 @@ class UserGroup(Base):
         secondary=UserGroup__ConnectorCredentialPair.__table__,
         viewonly=True,
     )
-    cc_pair_relationships: Mapped[list[UserGroup__ConnectorCredentialPair]] = (
-        relationship(
-            "UserGroup__ConnectorCredentialPair",
-            viewonly=True,
-        )
+    cc_pair_relationships: Mapped[
+        list[UserGroup__ConnectorCredentialPair]
+    ] = relationship(
+        "UserGroup__ConnectorCredentialPair",
+        viewonly=True,
     )
     personas: Mapped[list[Persona]] = relationship(
         "Persona",

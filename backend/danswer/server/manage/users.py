@@ -249,6 +249,7 @@ async def get_user_role(user: User = Depends(current_user)) -> UserRoleResponse:
         raise ValueError("Invalid or missing user.")
     return UserRoleResponse(role=user.role)
 
+
 def get_current_token_info(user: User | None, db_session: Session):
     if not isinstance(user, User):
         return None, None
@@ -299,7 +300,6 @@ async def verify_user_logged_in(
     )
 
     return user_info
-
 
 
 """APIs to adjust user preferences"""

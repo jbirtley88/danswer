@@ -1,11 +1,12 @@
 import smtplib
 import uuid
 from collections.abc import AsyncGenerator
+from datetime import datetime
+from datetime import timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 from typing import Tuple
-from datetime import datetime, timezone
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -185,13 +186,11 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             associate_by_email=associate_by_email,
             is_verified_by_default=is_verified_by_default,
         )
-        
-        if expires_at:
 
+        if expires_at:
             oidc_expiry = datetime.fromtimestamp(expires_at, tz=timezone.utc)
             await self.user_db.update(user, update_dict={"oidc_expiry": oidc_expiry})
         return user
-
 
     async def on_after_register(
         self, user: User, request: Optional[Request] = None
