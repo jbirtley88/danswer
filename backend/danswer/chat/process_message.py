@@ -32,12 +32,8 @@ from danswer.db.chat import translate_db_message_to_chat_message_detail
 from danswer.db.chat import translate_db_search_doc_to_server_search_doc
 from danswer.db.embedding_model import get_current_db_embedding_model
 from danswer.db.engine import get_session_context_manager
-from danswer.db.llm import fetch_existing_doc_sets
 from danswer.db.llm import fetch_existing_llm_providers
-from danswer.db.models import Persona
-from danswer.db.models import Prompt
 from danswer.db.models import SearchDoc as DbSearchDoc
-from danswer.db.models import Tool as ToolModel
 from danswer.db.models import ToolCall
 from danswer.db.models import User
 from danswer.db.persona import get_persona_by_id
@@ -67,7 +63,6 @@ from danswer.search.utils import drop_llm_indices
 from danswer.search.utils import internet_search_response_to_search_docs
 from danswer.server.query_and_chat.models import ChatMessageDetail
 from danswer.server.query_and_chat.models import CreateChatMessageRequest
-from danswer.server.query_and_chat.models import PersonaConfig
 from danswer.server.utils import get_json_line
 from danswer.tools.built_in_tools import get_built_in_tool_by_id
 from danswer.tools.custom.custom_tool import build_custom_tools_from_openapi_schema
@@ -236,60 +231,6 @@ ChatPacket = (
 ChatPacketStream = Iterator[ChatPacket]
 
 
-def create_temporary_persona(
-    persona_config: PersonaConfig, db_session: Session
-) -> Persona:
-    """Create a temporary Persona object from the provided configuration."""
-    persona = Persona(
-        name=persona_config.name,
-        description=persona_config.description,
-        search_type=persona_config.search_type,
-        num_chunks=persona_config.num_chunks,
-        llm_relevance_filter=persona_config.llm_relevance_filter,
-        llm_filter_extraction=persona_config.llm_filter_extraction,
-        recency_bias=persona_config.recency_bias,
-        llm_model_provider_override=persona_config.llm_model_provider_override,
-        llm_model_version_override=persona_config.llm_model_version_override,
-        starter_messages=str(persona_config.starter_messages),  # Convert to JSON string
-        default_persona=persona_config.default_persona,
-        is_visible=persona_config.is_visible,
-        display_priority=persona_config.display_priority,
-        deleted=persona_config.deleted,
-        is_public=persona_config.is_public,
-    )
-
-    persona.prompts = [
-        Prompt(
-            name=p.name,
-            description=p.description,
-            system_prompt=p.system_prompt,
-            task_prompt=p.task_prompt,
-            include_citations=p.include_citations,
-            datetime_aware=p.datetime_aware,
-        )
-        for p in persona_config.prompts
-    ]
-
-    persona.tools = [
-        ToolModel(
-            name=t.name,
-            description=t.description,
-            in_code_tool_id=t.in_code_tool_id,
-            id=t.id,
-            openapi_schema=str(t.openapi_schema),
-        )
-        for t in persona_config.tools
-    ]
-
-    doc_set_ids = [d.id for d in persona_config.document_sets]
-
-    fetched_docs = fetch_existing_doc_sets(db_session=db_session, doc_ids=doc_set_ids)
-
-    persona.document_sets = fetched_docs
-
-    return persona
-
-
 def stream_chat_message_objects(
     new_msg_req: CreateChatMessageRequest,
     user: User | None,
@@ -329,12 +270,7 @@ def stream_chat_message_objects(
         alternate_assistant_id = new_msg_req.alternate_assistant_id
 
         # use alternate persona if alternative assistant id is passed in
-        if new_msg_req.persona_config is not None:
-            new_persona = create_temporary_persona(
-                db_session=db_session, persona_config=new_msg_req.persona_config
-            )
-            persona = new_persona
-        elif alternate_assistant_id is not None:
+        if alternate_assistant_id is not None:
             persona = get_persona_by_id(
                 alternate_assistant_id, user=user, db_session=db_session
             )
