@@ -4,6 +4,7 @@ search/models.py imports from db/models.py."""
 from enum import Enum
 
 
+
 class OptionalSearchSetting(str, Enum):
     ALWAYS = "always"
     NEVER = "never"

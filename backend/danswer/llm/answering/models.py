@@ -113,6 +113,7 @@ class AnswerStyleConfig(BaseModel):
         return values
 
 
+
 class PromptConfig(BaseModel):
     """Final representation of the Prompt configuration passed
     into the `Answer` object."""

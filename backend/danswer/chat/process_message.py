@@ -2,12 +2,13 @@ from collections.abc import Callable
 from collections.abc import Iterator
 from functools import partial
 from typing import cast
-
+from danswer.db.models import Prompt
+from danswer.db.models import Tool
 from sqlalchemy.orm import Session
 from danswer.db.models import DocumentSet
 from danswer.db.models import DocumentSet
 from danswer.server.query_and_chat.models import PersonaConfig
-
+from danswer.llm.answering.models import PromptConfig
 
 from danswer.chat.chat_utils import create_chat_chain
 from danswer.chat.models import CitationInfo
@@ -51,7 +52,9 @@ from danswer.llm.answering.models import AnswerStyleConfig
 from danswer.llm.answering.models import CitationConfig
 from danswer.llm.answering.models import DocumentPruningConfig
 from danswer.llm.answering.models import PreviousMessage
-from danswer.llm.answering.models import PromptConfig
+from danswer.server.query_and_chat.models import PromptCreate
+
+
 from danswer.db.models import Persona
 from danswer.llm.exceptions import GenAIDisabledException
 from danswer.llm.factory import get_llms_for_persona
@@ -86,7 +89,7 @@ from danswer.tools.search.search_tool import SEARCH_RESPONSE_SUMMARY_ID
 from danswer.tools.search.search_tool import SearchResponseSummary
 from danswer.tools.search.search_tool import SearchTool
 from danswer.tools.search.search_tool import SECTION_RELEVANCE_LIST_ID
-from danswer.tools.tool import Tool
+
 from danswer.tools.tool import ToolResponse
 from danswer.tools.tool_runner import ToolCallFinalResult
 from danswer.tools.utils import compute_all_tool_tokens
@@ -110,9 +113,9 @@ def translate_citations(
     citation_to_saved_doc_id_map: dict[int, int] = {}
     for citation in citations_list:
         if citation.citation_num not in citation_to_saved_doc_id_map:
-            citation_to_saved_doc_id_map[
-                citation.citation_num
-            ] = doc_id_to_saved_doc_id_map[citation.document_id]
+            citation_to_saved_doc_id_map[citation.citation_num] = (
+                doc_id_to_saved_doc_id_map[citation.document_id]
+            )
 
     return citation_to_saved_doc_id_map
 
@@ -124,7 +127,6 @@ def _handle_search_tool_response_summary(
     dedupe_docs: bool = False,
 ) -> tuple[QADocsResponse, list[DbSearchDoc], list[int] | None]:
     response_sumary = cast(SearchResponseSummary, packet.response)
-
 
     dropped_inds = None
     if not selected_search_docs:
@@ -237,7 +239,6 @@ ChatPacket = (
 ChatPacketStream = Iterator[ChatPacket]
 
 
-
 def create_temporary_persona(persona_config: PersonaConfig) -> Persona:
     """Create a temporary Persona object from the provided configuration."""
     persona = Persona(
@@ -258,22 +259,31 @@ def create_temporary_persona(persona_config: PersonaConfig) -> Persona:
         is_public=persona_config.is_public,
     )
 
-    # persona.prompts = [Prompt(prompt=p.prompt, num_chunks=p.num_chunks) for p in persona_config.prompts]
-    persona.prompts = []
+    persona.prompts = [
+        Prompt(
+            name=p.name,
+            description=p.description,
+            system_prompt=p.system_prompt,
+            task_prompt=p.task_prompt,
+            include_citations=p.include_citations,
+            datetime_aware=p.datetime_aware,
+        )
+        for p in persona_config.prompts
+    ]
 
     persona.tools = [
-        # Tool(
-        #     name=t.name,
-        #     description=t.description,
-        #     in_code_tool_id=t.in_code_tool_id,
-        #     openapi_schema=str(t.openapi_schema),
-        # )
-        # for t in persona_config.tools
+        Tool(
+            name=t.name,
+            description=t.description,
+            in_code_tool_id=t.in_code_tool_id,
+            id=t.in_code_tool_id,
+            openapi_schema=str(t.openapi_schema),
+        )
+        for t in persona_config.tools
     ]
     persona.document_sets = [DocumentSet(id=d.id) for d in persona_config.document_sets]
 
     return persona
-
 
 
 def stream_chat_message_objects(
@@ -314,12 +324,11 @@ def stream_chat_message_objects(
         retrieval_options = new_msg_req.retrieval_options
         alternate_assistant_id = new_msg_req.alternate_assistant_id
 
-
         # use alternate persona if alternative assistant id is passed in
         if new_msg_req.persona_config is not None:
-            new_persona = create_temporary_persona(persona_config=new_msg_req.persona_config)
-            print("New")
-            print(new_persona)
+            new_persona = create_temporary_persona(
+                persona_config=new_msg_req.persona_config
+            )
             persona = new_persona
             # alternate_assistant_id = (new_msg_req.persona_config)
         elif alternate_assistant_id is not None:
@@ -330,6 +339,7 @@ def stream_chat_message_objects(
             persona = chat_session.persona
 
         prompt_id = new_msg_req.prompt_id
+
         if prompt_id is None and persona.prompts:
             prompt_id = sorted(persona.prompts, key=lambda x: x.id)[-1].id
 
@@ -492,7 +502,9 @@ def stream_chat_message_objects(
         )
 
         if not final_msg.prompt:
-            raise RuntimeError("No Prompt found")
+
+            raise RuntimeError(final_msg)
+            # raise RuntimeError("No Prompt found")
 
         prompt_config = (
             PromptConfig.from_model(
@@ -509,6 +521,7 @@ def stream_chat_message_objects(
         search_tool: SearchTool | None = None
         tool_dict: dict[int, list[Tool]] = {}  # tool_id to tool
         for db_tool_model in persona.tools:
+
             # handle in-code tools specially
             if db_tool_model.in_code_tool_id:
                 tool_cls = get_built_in_tool_by_id(db_tool_model.id, db_session)
@@ -650,9 +663,11 @@ def stream_chat_message_objects(
                         db_session=db_session,
                         selected_search_docs=selected_db_search_docs,
                         # Deduping happens at the last step to avoid harming quality by dropping content early on
-                        dedupe_docs=retrieval_options.dedupe_docs
-                        if retrieval_options
-                        else False,
+                        dedupe_docs=(
+                            retrieval_options.dedupe_docs
+                            if retrieval_options
+                            else False
+                        ),
                     )
                     yield qa_docs_response
                 elif packet.id == SECTION_RELEVANCE_LIST_ID:
@@ -745,16 +760,18 @@ def stream_chat_message_objects(
             token_count=len(llm_tokenizer_encode_func(answer.llm_answer)),
             citations=db_citations,
             error=None,
-            tool_calls=[
-                ToolCall(
-                    tool_id=tool_name_to_tool_id[tool_result.tool_name],
-                    tool_name=tool_result.tool_name,
-                    tool_arguments=tool_result.tool_args,
-                    tool_result=tool_result.tool_result,
-                )
-            ]
-            if tool_result
-            else [],
+            tool_calls=(
+                [
+                    ToolCall(
+                        tool_id=tool_name_to_tool_id[tool_result.tool_name],
+                        tool_name=tool_result.tool_name,
+                        tool_arguments=tool_result.tool_args,
+                        tool_result=tool_result.tool_result,
+                    )
+                ]
+                if tool_result
+                else []
+            ),
         )
         db_session.commit()  # actually save user / assistant message
 

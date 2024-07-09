@@ -8,6 +8,7 @@ from typing import Optional
 from typing import TypedDict
 from uuid import UUID
 
+
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseOAuthAccountTableUUID
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
 from fastapi_users_db_sqlalchemy.access_token import SQLAlchemyBaseAccessTokenTableUUID
@@ -755,6 +756,7 @@ class ChatMessage(Base):
     latest_child_message: Mapped[int | None] = mapped_column(Integer, nullable=True)
     message: Mapped[str] = mapped_column(Text)
     rephrased_query: Mapped[str] = mapped_column(Text, nullable=True)
+    
     # If None, then there is no answer generation, it's the special case of only
     # showing the user the retrieved docs
     prompt_id: Mapped[int | None] = mapped_column(ForeignKey("prompt.id"))
