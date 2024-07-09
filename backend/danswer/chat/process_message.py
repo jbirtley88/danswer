@@ -32,8 +32,8 @@ from danswer.db.chat import translate_db_message_to_chat_message_detail
 from danswer.db.chat import translate_db_search_doc_to_server_search_doc
 from danswer.db.embedding_model import get_current_db_embedding_model
 from danswer.db.engine import get_session_context_manager
+from danswer.db.llm import fetch_existing_doc_sets
 from danswer.db.llm import fetch_existing_llm_providers
-from danswer.db.models import DocumentSet
 from danswer.db.models import Persona
 from danswer.db.models import Prompt
 from danswer.db.models import SearchDoc as DbSearchDoc
@@ -235,7 +235,9 @@ ChatPacket = (
 ChatPacketStream = Iterator[ChatPacket]
 
 
-def create_temporary_persona(persona_config: PersonaConfig) -> Persona:
+def create_temporary_persona(
+    persona_config: PersonaConfig, db_session: Session
+) -> Persona:
     """Create a temporary Persona object from the provided configuration."""
     persona = Persona(
         name=persona_config.name,
@@ -277,7 +279,12 @@ def create_temporary_persona(persona_config: PersonaConfig) -> Persona:
         )
         for t in persona_config.tools
     ]
-    persona.document_sets = [DocumentSet(id=d.id) for d in persona_config.document_sets]
+
+    doc_set_ids = [d.id for d in persona_config.document_sets]
+
+    fetched_docs = fetch_existing_doc_sets(db_session=db_session, doc_ids=doc_set_ids)
+
+    persona.document_sets = fetched_docs
 
     return persona
 
@@ -323,7 +330,7 @@ def stream_chat_message_objects(
         # use alternate persona if alternative assistant id is passed in
         if new_msg_req.persona_config is not None:
             new_persona = create_temporary_persona(
-                persona_config=new_msg_req.persona_config
+                db_session=db_session, persona_config=new_msg_req.persona_config
             )
             persona = new_persona
         elif alternate_assistant_id is not None:

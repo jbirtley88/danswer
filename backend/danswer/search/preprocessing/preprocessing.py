@@ -53,6 +53,8 @@ def retrieval_preprocessing(
     persona = search_request.persona
 
     preset_filters = search_request.human_selected_filters or BaseFilters()
+    print("DOC SET")
+    print(persona.document_sets[0].__dict__)
     if persona and persona.document_sets and preset_filters.document_set is None:
         preset_filters.document_set = [
             document_set.name for document_set in persona.document_sets
@@ -135,6 +137,8 @@ def retrieval_preprocessing(
     user_acl_filters = (
         None if bypass_acl else build_access_filters_for_user(user, db_session)
     )
+    print("FILTESR")
+    print(preset_filters)
     final_filters = IndexFilters(
         source_type=preset_filters.source_type or predicted_source_filters,
         document_set=preset_filters.document_set,
