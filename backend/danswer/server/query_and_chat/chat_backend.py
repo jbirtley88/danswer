@@ -50,17 +50,6 @@ from danswer.secondary_llm_flows.chat_session_naming import (
     get_renamed_conversation_name,
 )
 
-# from danswer.db.models import PersonaConfig
-from danswer.db.models import Persona
-
-# from danswer.db.models import ToolConfig
-from danswer.db.models import Prompt
-from danswer.db.models import Tool
-
-# from danswer.db.models import PromptConfig
-from danswer.db.models import DocumentSet
-
-
 from danswer.server.query_and_chat.models import ChatFeedbackRequest
 from danswer.server.query_and_chat.models import ChatMessageIdentifier
 from danswer.server.query_and_chat.models import ChatRenameRequest
@@ -282,41 +271,6 @@ def delete_chat_session_by_id(
     user_id = user.id if user is not None else None
     delete_chat_session(user_id, session_id, db_session)
 
-
-@router.post("/send-message-with-assistant")
-def handle_new_chat_message(
-    chat_message_req: CreateChatMessageRequest,
-    request: Request,
-    user: User | None = Depends(current_user),
-    _: None = Depends(check_token_rate_limits),
-) -> StreamingResponse:
-    """This endpoint is both used for all the following purposes:
-    - Sending a new message in the session
-    - Regenerating a message in the session (just send the same one again)
-    - Editing a message (similar to regenerating but sending a different message)
-    - Kicking off a seeded chat session (set `use_existing_user_message`)
-
-    To avoid extra overhead/latency, this assumes (and checks) that previous messages on the path
-    have already been set as latest"""
-    logger.debug(f"Received new chat message: {chat_message_req.message}")
-
-    if (
-        not chat_message_req.message
-        and chat_message_req.prompt_id is not None
-        and not chat_message_req.use_existing_user_message
-    ):
-        raise HTTPException(status_code=400, detail="Empty chat message is invalid")
-
-    packets = stream_chat_message(
-        new_msg_req=chat_message_req,
-        user=user,
-        use_existing_user_message=chat_message_req.use_existing_user_message,
-        litellm_additional_headers=get_litellm_additional_request_headers(
-            request.headers
-        ),
-    )
-
-    return StreamingResponse(packets, media_type="application/json")
 
 @router.post("/send-message")
 def handle_new_chat_message(

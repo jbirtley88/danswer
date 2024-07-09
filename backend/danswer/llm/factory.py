@@ -33,7 +33,6 @@ def get_llms_for_persona(
             temperature=temperature_override or GEN_AI_TEMPERATURE,
             additional_headers=additional_headers,
         )
-    print(provider_name)
 
     with get_session_context_manager() as db_session:
         llm_provider = fetch_provider(db_session, provider_name)
