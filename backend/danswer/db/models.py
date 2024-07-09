@@ -1019,6 +1019,7 @@ class StarterMessage(TypedDict):
     message: str
 
 
+
 class Persona(Base):
     __tablename__ = "persona"
 
