@@ -272,7 +272,7 @@ def create_temporary_persona(persona_config: PersonaConfig) -> Persona:
             name=t.name,
             description=t.description,
             in_code_tool_id=t.in_code_tool_id,
-            id=t.in_code_tool_id,
+            id=t.id,
             openapi_schema=str(t.openapi_schema),
         )
         for t in persona_config.tools
