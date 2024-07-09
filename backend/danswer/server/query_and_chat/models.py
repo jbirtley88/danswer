@@ -100,6 +100,7 @@ class DocumentSetConfig(BaseModel):
 
 class ToolConfig(BaseModel):
     name: str
+    id: int | None = None
     description: str
     in_code_tool_id: int | None = None
     display_name: str | None = None
