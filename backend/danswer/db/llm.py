@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from danswer.db.models import DocumentSet
 from danswer.db.models import LLMProvider as LLMProviderModel
+from danswer.db.models import Tool as ToolModel
 from danswer.server.manage.llm.models import FullLLMProvider
 from danswer.server.manage.llm.models import LLMProviderUpsertRequest
 
@@ -52,6 +53,12 @@ def fetch_existing_doc_sets(
 ) -> list[DocumentSet]:
     return list(
         db_session.scalars(select(DocumentSet).where(DocumentSet.id.in_(doc_ids))).all()
+    )
+
+
+def fetch_existing_tools(db_session: Session, tool_ids: list[int]) -> list[ToolModel]:
+    return list(
+        db_session.scalars(select(ToolModel).where(ToolModel.id.in_(tool_ids))).all()
     )
 
 

@@ -5,10 +5,6 @@ from sqlalchemy.orm import Session
 from danswer.auth.users import current_user
 from danswer.configs.danswerbot_configs import DANSWER_BOT_TARGET_CHUNK_PERCENTAGE
 from danswer.db.engine import get_session
-from danswer.db.llm import fetch_existing_doc_sets
-from danswer.db.models import Persona
-from danswer.db.models import Prompt
-from danswer.db.models import Tool as ToolModel
 from danswer.db.models import User
 from danswer.db.persona import get_persona_by_id
 from danswer.llm.answering.prompts.citations_prompt import (
@@ -21,7 +17,6 @@ from danswer.llm.utils import get_max_input_tokens
 from danswer.one_shot_answer.answer_question import get_search_answer
 from danswer.one_shot_answer.models import DirectQARequest
 from danswer.one_shot_answer.models import OneShotQAResponse
-from danswer.one_shot_answer.models import PersonaConfig
 from danswer.search.models import SavedSearchDoc
 from danswer.search.models import SearchRequest
 from danswer.search.models import SearchResponse
@@ -31,6 +26,7 @@ from danswer.search.utils import dedupe_documents
 from danswer.search.utils import drop_llm_indices
 from danswer.utils.logger import setup_logger
 from ee.danswer.server.query_and_chat.models import DocumentSearchRequest
+from ee.danswer.server.query_and_chat.utils import create_temporary_persona
 
 logger = setup_logger()
 basic_router = APIRouter(prefix="/query")
@@ -94,60 +90,6 @@ def handle_search_request(
     )
 
 
-def create_temporary_persona(
-    persona_config: PersonaConfig, db_session: Session
-) -> Persona:
-    """Create a temporary Persona object from the provided configuration."""
-    persona = Persona(
-        name=persona_config.name,
-        description=persona_config.description,
-        search_type=persona_config.search_type,
-        num_chunks=persona_config.num_chunks,
-        llm_relevance_filter=persona_config.llm_relevance_filter,
-        llm_filter_extraction=persona_config.llm_filter_extraction,
-        recency_bias=persona_config.recency_bias,
-        llm_model_provider_override=persona_config.llm_model_provider_override,
-        llm_model_version_override=persona_config.llm_model_version_override,
-        starter_messages=str(persona_config.starter_messages),  # Convert to JSON string
-        default_persona=persona_config.default_persona,
-        is_visible=persona_config.is_visible,
-        display_priority=persona_config.display_priority,
-        deleted=persona_config.deleted,
-        is_public=persona_config.is_public,
-    )
-
-    persona.prompts = [
-        Prompt(
-            name=p.name,
-            description=p.description,
-            system_prompt=p.system_prompt,
-            task_prompt=p.task_prompt,
-            include_citations=p.include_citations,
-            datetime_aware=p.datetime_aware,
-        )
-        for p in persona_config.prompts
-    ]
-
-    persona.tools = [
-        ToolModel(
-            name=t.name,
-            description=t.description,
-            in_code_tool_id=t.in_code_tool_id,
-            id=t.id,
-            openapi_schema=str(t.openapi_schema),
-        )
-        for t in persona_config.tools
-    ]
-
-    doc_set_ids = [d.id for d in persona_config.document_sets]
-
-    fetched_docs = fetch_existing_doc_sets(db_session=db_session, doc_ids=doc_set_ids)
-
-    persona.document_sets = fetched_docs
-
-    return persona
-
-
 @basic_router.post("/answer-with-quote")
 def get_answer_with_quote(
     query_request: DirectQARequest,
@@ -156,7 +98,6 @@ def get_answer_with_quote(
 ) -> OneShotQAResponse:
     query = query_request.messages[0].message
     logger.info(f"Received query for one shot answer API with quotes: {query}")
-    print(query_request)
 
     if query_request.persona_config is not None:
         new_persona = create_temporary_persona(
