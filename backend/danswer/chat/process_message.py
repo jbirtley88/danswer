@@ -37,7 +37,7 @@ from danswer.db.llm import fetch_existing_llm_providers
 from danswer.db.models import Persona
 from danswer.db.models import Prompt
 from danswer.db.models import SearchDoc as DbSearchDoc
-from danswer.db.models import Tool
+from danswer.db.models import Tool as ToolModel
 from danswer.db.models import ToolCall
 from danswer.db.models import User
 from danswer.db.persona import get_persona_by_id
@@ -86,6 +86,7 @@ from danswer.tools.search.search_tool import SEARCH_RESPONSE_SUMMARY_ID
 from danswer.tools.search.search_tool import SearchResponseSummary
 from danswer.tools.search.search_tool import SearchTool
 from danswer.tools.search.search_tool import SECTION_RELEVANCE_LIST_ID
+from danswer.tools.tool import Tool
 from danswer.tools.tool import ToolResponse
 from danswer.tools.tool_runner import ToolCallFinalResult
 from danswer.tools.utils import compute_all_tool_tokens
@@ -270,7 +271,7 @@ def create_temporary_persona(
     ]
 
     persona.tools = [
-        Tool(
+        ToolModel(
             name=t.name,
             description=t.description,
             in_code_tool_id=t.in_code_tool_id,
