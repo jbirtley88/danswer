@@ -49,7 +49,6 @@ from danswer.llm.utils import get_default_llm_tokenizer
 from danswer.secondary_llm_flows.chat_session_naming import (
     get_renamed_conversation_name,
 )
-
 from danswer.server.query_and_chat.models import ChatFeedbackRequest
 from danswer.server.query_and_chat.models import ChatMessageIdentifier
 from danswer.server.query_and_chat.models import ChatRenameRequest
