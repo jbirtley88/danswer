@@ -2,13 +2,8 @@ from collections.abc import Callable
 from collections.abc import Iterator
 from functools import partial
 from typing import cast
-from danswer.db.models import Prompt
-from danswer.db.models import Tool
+
 from sqlalchemy.orm import Session
-from danswer.db.models import DocumentSet
-from danswer.db.models import DocumentSet
-from danswer.server.query_and_chat.models import PersonaConfig
-from danswer.llm.answering.models import PromptConfig
 
 from danswer.chat.chat_utils import create_chat_chain
 from danswer.chat.models import CitationInfo
@@ -38,7 +33,11 @@ from danswer.db.chat import translate_db_search_doc_to_server_search_doc
 from danswer.db.embedding_model import get_current_db_embedding_model
 from danswer.db.engine import get_session_context_manager
 from danswer.db.llm import fetch_existing_llm_providers
+from danswer.db.models import DocumentSet
+from danswer.db.models import Persona
+from danswer.db.models import Prompt
 from danswer.db.models import SearchDoc as DbSearchDoc
+from danswer.db.models import Tool
 from danswer.db.models import ToolCall
 from danswer.db.models import User
 from danswer.db.persona import get_persona_by_id
@@ -52,10 +51,7 @@ from danswer.llm.answering.models import AnswerStyleConfig
 from danswer.llm.answering.models import CitationConfig
 from danswer.llm.answering.models import DocumentPruningConfig
 from danswer.llm.answering.models import PreviousMessage
-from danswer.server.query_and_chat.models import PromptCreate
-
-
-from danswer.db.models import Persona
+from danswer.llm.answering.models import PromptConfig
 from danswer.llm.exceptions import GenAIDisabledException
 from danswer.llm.factory import get_llms_for_persona
 from danswer.llm.factory import get_main_llm_from_tuple
@@ -71,6 +67,7 @@ from danswer.search.utils import drop_llm_indices
 from danswer.search.utils import internet_search_response_to_search_docs
 from danswer.server.query_and_chat.models import ChatMessageDetail
 from danswer.server.query_and_chat.models import CreateChatMessageRequest
+from danswer.server.query_and_chat.models import PersonaConfig
 from danswer.server.utils import get_json_line
 from danswer.tools.built_in_tools import get_built_in_tool_by_id
 from danswer.tools.custom.custom_tool import build_custom_tools_from_openapi_schema
@@ -89,7 +86,6 @@ from danswer.tools.search.search_tool import SEARCH_RESPONSE_SUMMARY_ID
 from danswer.tools.search.search_tool import SearchResponseSummary
 from danswer.tools.search.search_tool import SearchTool
 from danswer.tools.search.search_tool import SECTION_RELEVANCE_LIST_ID
-
 from danswer.tools.tool import ToolResponse
 from danswer.tools.tool_runner import ToolCallFinalResult
 from danswer.tools.utils import compute_all_tool_tokens
@@ -113,9 +109,9 @@ def translate_citations(
     citation_to_saved_doc_id_map: dict[int, int] = {}
     for citation in citations_list:
         if citation.citation_num not in citation_to_saved_doc_id_map:
-            citation_to_saved_doc_id_map[citation.citation_num] = (
-                doc_id_to_saved_doc_id_map[citation.document_id]
-            )
+            citation_to_saved_doc_id_map[
+                citation.citation_num
+            ] = doc_id_to_saved_doc_id_map[citation.document_id]
 
     return citation_to_saved_doc_id_map
 
@@ -330,7 +326,6 @@ def stream_chat_message_objects(
                 persona_config=new_msg_req.persona_config
             )
             persona = new_persona
-            # alternate_assistant_id = (new_msg_req.persona_config)
         elif alternate_assistant_id is not None:
             persona = get_persona_by_id(
                 alternate_assistant_id, user=user, db_session=db_session
@@ -339,7 +334,6 @@ def stream_chat_message_objects(
             persona = chat_session.persona
 
         prompt_id = new_msg_req.prompt_id
-
         if prompt_id is None and persona.prompts:
             prompt_id = sorted(persona.prompts, key=lambda x: x.id)[-1].id
 
@@ -502,9 +496,7 @@ def stream_chat_message_objects(
         )
 
         if not final_msg.prompt:
-
-            raise RuntimeError(final_msg)
-            # raise RuntimeError("No Prompt found")
+            raise RuntimeError("No Prompt found")
 
         prompt_config = (
             PromptConfig.from_model(
@@ -521,7 +513,6 @@ def stream_chat_message_objects(
         search_tool: SearchTool | None = None
         tool_dict: dict[int, list[Tool]] = {}  # tool_id to tool
         for db_tool_model in persona.tools:
-
             # handle in-code tools specially
             if db_tool_model.in_code_tool_id:
                 tool_cls = get_built_in_tool_by_id(db_tool_model.id, db_session)
