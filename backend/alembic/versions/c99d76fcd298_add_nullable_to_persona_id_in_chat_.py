@@ -22,7 +22,6 @@ def upgrade() -> None:
     op.alter_column(
         "chat_session", "persona_id", existing_type=sa.INTEGER(), nullable=True
     )
-
     # ### end Alembic commands ###
 
 
