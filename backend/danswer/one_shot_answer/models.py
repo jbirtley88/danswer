@@ -62,6 +62,7 @@ class PersonaConfig(BaseModel):
     prompts: list[PromptConfig] = []
     document_sets: list[DocumentSetConfig] = []
     tools: list[ToolConfig] = []
+    custom_tools_openapi: list[dict[str, Any]] | None = None
 
 
 class DirectQARequest(ChunkContext):

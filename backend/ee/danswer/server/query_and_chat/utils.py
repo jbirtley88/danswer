@@ -1,10 +1,14 @@
+from typing import cast
+
 from sqlalchemy.orm import Session
 
 from danswer.db.llm import fetch_existing_doc_sets
 from danswer.db.llm import fetch_existing_tools
 from danswer.db.models import Persona
 from danswer.db.models import Prompt
+from danswer.db.models import Tool
 from danswer.one_shot_answer.models import PersonaConfig
+from danswer.tools.custom.custom_tool import build_custom_tools_from_openapi_schema
 
 
 def create_temporary_persona(
@@ -41,9 +45,18 @@ def create_temporary_persona(
         for p in persona_config.prompts
     ]
 
-    tool_ids = [tool.id for tool in persona_config.tools]
-    print(tool_ids)
-    persona.tools = fetch_existing_tools(db_session=db_session, tool_ids=tool_ids)
+    persona.tools = []
+    if persona_config.custom_tools_openapi:
+        for schema in persona_config.custom_tools_openapi:
+            tools = cast(
+                list[Tool],
+                build_custom_tools_from_openapi_schema(schema),
+            )
+            persona.tools.extend(tools)
+
+    if persona_config.tools:
+        tool_ids = [tool.id for tool in persona_config.tools]
+        persona.tools = fetch_existing_tools(db_session=db_session, tool_ids=tool_ids)
 
     doc_set_ids = [d.id for d in persona_config.document_sets]
     fetched_docs = fetch_existing_doc_sets(db_session=db_session, doc_ids=doc_set_ids)
