@@ -181,16 +181,27 @@ def stream_answer_objects(
     # retrieval_options = query_req.retrieval_options
     # retrieval_options.filters.document_set =
 
-    search_tool = SearchTool(
-        db_session=db_session,
-        user=user,
-        persona=persona,
-        retrieval_options=query_req.retrieval_options,
-        prompt_config=prompt_config,
-        llm=llm,
-        fast_llm=fast_llm,
-        pruning_config=document_pruning_config,
-        bypass_acl=bypass_acl,
+    contains_tool = True
+    if temporary_persona:
+        contains_tool = False
+        for tool in temporary_persona.tools:
+            if tool.in_code_tool_id == "SearchTool":
+                contains_tool = True
+
+    search_tool = (
+        SearchTool(
+            db_session=db_session,
+            user=user,
+            persona=persona,
+            retrieval_options=query_req.retrieval_options,
+            prompt_config=prompt_config,
+            llm=llm,
+            fast_llm=fast_llm,
+            pruning_config=document_pruning_config,
+            bypass_acl=bypass_acl,
+        )
+        if contains_tool
+        else None
     )
 
     answer_config = AnswerStyleConfig(
@@ -204,19 +215,27 @@ def stream_answer_objects(
         prompt_config=PromptConfig.from_model(prompt),
         llm=get_main_llm_from_tuple(get_llms_for_persona(persona=persona)),
         single_message_history=history_str,
-        tools=[search_tool],
-        force_use_tool=ForceUseTool(
-            tool_name=search_tool.name,
-            args={"query": rephrased_query},
+        tools=[search_tool] if search_tool else [],
+        force_use_tool=(
+            ForceUseTool(
+                tool_name=search_tool.name,
+                args={"query": rephrased_query},
+            )
+            if search_tool
+            else None
         ),
         # for now, don't use tool calling for this flow, as we haven't
         # tested quotes with tool calling too much yet
         skip_explicit_tool_calling=True,
         return_contexts=query_req.return_contexts,
     )
+    print("ANS")
+    print(answer.__dict__)
     # won't be any ImageGenerationDisplay responses since that tool is never passed in
     dropped_inds: list[int] = []
+
     for packet in cast(AnswerObjectIterator, answer.processed_streamed_output):
+        print(packet)
         # for one-shot flow, don't currently do anything with these
         if isinstance(packet, ToolResponse):
             if packet.id == SEARCH_RESPONSE_SUMMARY_ID:
@@ -250,6 +269,7 @@ def stream_answer_objects(
                     applied_time_cutoff=search_response_summary.final_filters.time_cutoff,
                     recency_bias_multiplier=search_response_summary.recency_bias_multiplier,
                 )
+
                 yield initial_response
             elif packet.id == SECTION_RELEVANCE_LIST_ID:
                 chunk_indices = packet.response
