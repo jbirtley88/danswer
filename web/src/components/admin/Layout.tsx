@@ -69,9 +69,7 @@ export async function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-screen overflow-y-hidden">
-      <div className="m-3">
-        <HealthCheckBanner secondsUntilExpiration={secondsUntilExpiration} />
-      </div>
+      <HealthCheckBanner secondsUntilExpiration={secondsUntilExpiration} />
       <div className="absolute top-0 z-50 w-full">
         <Header user={user} />
       </div>
