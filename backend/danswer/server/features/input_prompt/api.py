@@ -19,7 +19,6 @@ from danswer.utils.logger import setup_logger
 logger = setup_logger()
 
 basic_router = APIRouter(prefix="/input_prompt")
-admin_router = APIRouter(prefix="/admin/input_prompt")
 
 
 @basic_router.get("")
@@ -30,7 +29,6 @@ def list_input_prompts(
     user_prompts = fetch_input_prompts_by_user(
         user_id=user.id if user is not None else None, db_session=db_session
     )
-
     return [InputPromptSnapshot.from_model(prompt) for prompt in user_prompts]
 
 
@@ -40,17 +38,15 @@ def get_input_prompt(
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> InputPromptSnapshot:
-    print("HI")
     input_prompt = fetch_input_prompt_by_id(
         id=input_prompt_id,
         user_id=user.id if user is not None else None,
         db_session=db_session,
     )
-
     return InputPromptSnapshot.from_model(input_prompt=input_prompt)
 
 
-@basic_router.post("/create")
+@basic_router.post("")
 def create_input_prompt(
     create_input_prompt_request: CreateInputPromptRequest,
     user: User | None = Depends(current_user),
@@ -100,11 +96,3 @@ def delete_input_prompt(
         remove_input_prompt(user, input_prompt_id, db_session)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-
-# @basic_router.get("/public")
-# def list_public_input_prompts(
-#     db_session: Session = Depends(get_session),
-# ) -> list[InputPromptSnapshot]:
-#     public_prompts = fetch_public_input_prompts(db_session)
-#     return [InputPromptSnapshot.from_model(prompt) for prompt in public_prompts]

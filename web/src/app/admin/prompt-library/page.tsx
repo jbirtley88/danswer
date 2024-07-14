@@ -28,7 +28,7 @@ const Main = () => {
   const createInputPrompt = async (
     promptData: CreateInputPromptRequest
   ): Promise<InputPromptSnapshot> => {
-    const response = await fetch("/api/input_prompt/create", {
+    const response = await fetch("/api/input_prompt", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

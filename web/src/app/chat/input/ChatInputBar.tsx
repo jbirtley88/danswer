@@ -193,13 +193,15 @@ export function ChatInputBar({
     )
   );
 
-  const filteredPrompts = inputPrompts.filter((prompt) =>
-    prompt.prompt.toLowerCase().startsWith(
-      message
-        .slice(message.lastIndexOf("/") + 1)
-        .split(/\s/)[0]
-        .toLowerCase()
-    )
+  const filteredPrompts = inputPrompts.filter(
+    (prompt) =>
+      prompt.active &&
+      prompt.prompt.toLowerCase().startsWith(
+        message
+          .slice(message.lastIndexOf("/") + 1)
+          .split(/\s/)[0]
+          .toLowerCase()
+      )
   );
 
   const [tabbingIconIndex, setTabbingIconIndex] = useState(0);

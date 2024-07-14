@@ -26,10 +26,6 @@ class InputPromptResponse(BaseModel):
     active: bool
 
 
-class InputPromptListResponse(BaseModel):
-    input_prompts: list[InputPromptResponse]
-
-
 class InputPromptSnapshot(BaseModel):
     id: int
     prompt: str

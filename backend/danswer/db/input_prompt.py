@@ -13,20 +13,9 @@ from danswer.utils.logger import setup_logger
 logger = setup_logger()
 
 
-def check_prompt_validity(prompt: str) -> bool:
-    """Check if a prompt is valid (not too long)."""
-    if len(prompt) > 1000:
-        logger.error(f"Prompt '{prompt[:50]}...' is too long, cannot be used")
-        return False
-    return True
-
-
 def insert_input_prompt(
     prompt: str, content: str, user: User | None, db_session: Session
 ) -> InputPrompt:
-    if not check_prompt_validity(prompt):
-        raise ValueError(f"Invalid prompt: {prompt}")
-
     input_prompt = InputPrompt(
         prompt=prompt,
         content=content,
@@ -52,9 +41,6 @@ def update_input_prompt(
     )
     if input_prompt is None:
         raise ValueError(f"No input prompt with id {input_prompt_id}")
-
-    if not check_prompt_validity(prompt):
-        raise ValueError(f"Invalid prompt: {prompt}")
 
     if not validate_user_prompt_authorization(user, input_prompt):
         raise HTTPException(status_code=401, detail="You don't own this prompt")
@@ -110,7 +96,7 @@ def fetch_input_prompt_by_id(
                 (InputPrompt.user_id == user_id) | (InputPrompt.user_id is None)
             )
         else:
-            # If no user_id is provided, only fetch prompts without a user_id
+            # If no user_id is provided, only fetch prompts without a user_id (aka public)
             query = query.where(InputPrompt.user_id == None)  # noqa
 
         result = db_session.scalar(query)

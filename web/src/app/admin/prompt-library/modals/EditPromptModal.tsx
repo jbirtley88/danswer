@@ -19,8 +19,19 @@ const EditPromptModal = ({
 }: EditPromptModalProps) => {
   const { data: promptData, error } = useInputPrompt(promptId);
 
-  if (error) return <div>Failed to load prompt data</div>;
-  if (!promptData) return <div>Loading...</div>;
+  if (error)
+    return (
+      <ModalWrapper onClose={onClose} modalClassName="max-w-xl">
+        <p>Failed to load prompt data</p>
+      </ModalWrapper>
+    );
+
+  if (!promptData)
+    return (
+      <ModalWrapper onClose={onClose} modalClassName="max-w-xl">
+        <p>Loading...</p>
+      </ModalWrapper>
+    );
 
   return (
     <ModalWrapper onClose={onClose} modalClassName="max-w-xl">
