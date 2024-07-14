@@ -26,7 +26,6 @@ def upgrade() -> None:
         sa.Column("prompt", sa.String(), nullable=False),
         sa.Column("content", sa.String(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False),
-        sa.Column("is_public", sa.Boolean(), nullable=False),
         sa.Column(
             "user_id",
             fastapi_users_db_sqlalchemy.generics.GUID(),

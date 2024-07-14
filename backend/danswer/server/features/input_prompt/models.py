@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 from danswer.db.models import InputPrompt
@@ -9,20 +11,17 @@ logger = setup_logger()
 class CreateInputPromptRequest(BaseModel):
     prompt: str
     content: str
-    is_public: bool
 
 
 class UpdateInputPromptRequest(BaseModel):
     prompt: str
     content: str
-    is_public: bool
 
 
 class InputPromptResponse(BaseModel):
     id: int
     prompt: str
     content: str
-    is_public: bool
 
 
 class InputPromptListResponse(BaseModel):
@@ -34,8 +33,7 @@ class InputPromptSnapshot(BaseModel):
     prompt: str
     content: str
     active: bool
-    is_public: bool
-    user_id: int | None
+    user_id: UUID | None
 
     @classmethod
     def from_model(
@@ -53,6 +51,5 @@ class InputPromptSnapshot(BaseModel):
             prompt=input_prompt.prompt,
             content=input_prompt.content,
             active=input_prompt.active,
-            is_public=input_prompt.is_public,
             user_id=input_prompt.user_id,
         )

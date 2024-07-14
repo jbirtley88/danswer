@@ -171,7 +171,6 @@ export function ChatInputBar({
     // If looking for an assistant...fup
     const promptMatch = text.match(/(?:\s|^)\/(\w*)$/);
     if (promptMatch) {
-      console.log("SHOW");
       setShowPrompts(true);
     } else {
       hidePrompts();
@@ -186,7 +185,6 @@ export function ChatInputBar({
         .toLowerCase()
     )
   );
-  console.log(inputPrompts);
 
   const filteredPrompts = inputPrompts.filter((prompt) =>
     prompt.prompt.toLowerCase().startsWith(
@@ -234,7 +232,6 @@ export function ChatInputBar({
       setTabbingIconIndex((tabbingIconIndex) =>
         Math.min(tabbingIconIndex + 1, filteredPersonas.length)
       );
-      console.log(Math.min(tabbingIconIndex + 1, filteredPersonas.length));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setTabbingIconIndex((tabbingIconIndex) =>

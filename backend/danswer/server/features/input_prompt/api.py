@@ -58,7 +58,6 @@ def create_input_prompt(
     input_prompt = insert_input_prompt(
         prompt=create_input_prompt_request.prompt,
         content=create_input_prompt_request.content,
-        is_public=create_input_prompt_request.is_public,
         user=user,
         db_session=db_session,
     )
@@ -78,7 +77,6 @@ def update_input_prompt_endpoint(
             input_prompt_id=input_prompt_id,
             prompt=update_input_prompt_request.prompt,
             content=update_input_prompt_request.content,
-            is_public=update_input_prompt_request.is_public,
             db_session=db_session,
         )
     except ValueError as e:
