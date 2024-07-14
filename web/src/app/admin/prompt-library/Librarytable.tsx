@@ -15,7 +15,7 @@ import {
 import { FilterDropdown } from "@/components/search/filtering/FilterDropdown";
 import { FiTag } from "react-icons/fi";
 import { PageSelector } from "@/components/PageSelector";
-import { InputPrompt } from "../assistants/interfaces";
+import { InputPrompt } from "./interfaces";
 
 const CategoryBubble = ({
   name,
@@ -76,8 +76,8 @@ export const PromptLibraryTable = ({
     { name: "Prompt", key: "prompt" },
     { name: "Content", key: "content" },
     { name: "Status", key: "status" },
-    { name: "Public", key: "public" },
-    { name: "", key: "actions" },
+    { name: "", key: "edit" },
+    { name: "", key: "delete" },
   ];
 
   const filteredPromptLibrary = promptLibrary.filter((item) => {
@@ -177,7 +177,6 @@ export const PromptLibraryTable = ({
                   <TableCell>{item.prompt}</TableCell>
                   <TableCell>{item.content}</TableCell>
                   <TableCell>{item.active ? "Active" : "Inactive"}</TableCell>
-                  <TableCell>{item.is_public ? "Yes" : "No"}</TableCell>
                   <TableCell>
                     <button onClick={() => handleDelete(item.id)}>
                       <TrashIcon size={20} />

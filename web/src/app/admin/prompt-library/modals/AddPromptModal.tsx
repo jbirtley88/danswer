@@ -3,38 +3,28 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { ModalWrapper } from "@/app/chat/modal/ModalWrapper";
 import { Button, Textarea, TextInput } from "@tremor/react";
-import { CreateInputPromptRequest } from "../page";
-import { BookstackIcon } from "@/components/icons/icons";
 
-interface AddPromptModalProps {
-  onClose: () => void;
-  onSubmit: (promptData: CreateInputPromptRequest) => void;
-}
+import { BookstackIcon } from "@/components/icons/icons";
+import { AddPromptModalProps } from "../interfaces";
 
 const AddPromptSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
   prompt: Yup.string().required("Prompt is required"),
-  is_public: Yup.boolean(),
 });
 
-const AddPromptModal: React.FC<AddPromptModalProps> = ({
-  onClose,
-  onSubmit,
-}) => {
+const AddPromptModal = ({ onClose, onSubmit }: AddPromptModalProps) => {
   return (
     <ModalWrapper onClose={onClose} modalClassName="max-w-xl">
       <Formik
         initialValues={{
           title: "",
           prompt: "",
-          is_public: false,
         }}
         validationSchema={AddPromptSchema}
         onSubmit={(values, { setSubmitting }) => {
           onSubmit({
             prompt: values.title,
             content: values.prompt,
-            is_public: values.is_public,
           });
           setSubmitting(false);
           onClose();
@@ -90,13 +80,6 @@ const AddPromptModal: React.FC<AddPromptModalProps> = ({
                   component="div"
                   className="text-red-500 text-sm mt-1"
                 />
-              </div>
-
-              <div>
-                <label className="flex items-center">
-                  <Field type="checkbox" name="is_public" className="mr-2" />
-                  Make this prompt public
-                </label>
               </div>
             </div>
 

@@ -8,15 +8,10 @@ import { ErrorCallout } from "@/components/ErrorCallout";
 import { Button, Divider, Text } from "@tremor/react";
 import { useState } from "react";
 import AddPromptModal from "./modals/AddPromptModal";
-import EditPromptModal from "./modals/EditPromptModa";
+import EditPromptModal from "./modals/EditPromptModal";
 import { useInputPrompts } from "./hooks";
 import { PromptLibraryTable } from "./Librarytable";
-
-export interface CreateInputPromptRequest {
-  prompt: string;
-  content: string;
-  is_public: boolean;
-}
+import { CreateInputPromptRequest, InputPromptSnapshot } from "./interfaces";
 
 const Main = () => {
   const { popup, setPopup } = usePopup();
@@ -29,13 +24,6 @@ const Main = () => {
     isLoading: promptLibraryIsLoading,
     refreshInputPrompts: refreshPrompts,
   } = useInputPrompts();
-
-  interface InputPromptSnapshot {
-    id: number;
-    prompt: string;
-    content: string;
-    is_public: boolean;
-  }
 
   const createInputPrompt = async (
     promptData: CreateInputPromptRequest
@@ -52,9 +40,33 @@ const Main = () => {
       const errorData = await response.json();
       throw new Error(errorData.detail || "Failed to create input prompt");
     }
-    refreshPrompts();
 
+    refreshPrompts();
     return response.json();
+  };
+
+  const editInputPrompt = async (
+    promptId: number,
+    values: CreateInputPromptRequest
+  ) => {
+    try {
+      const response = await fetch(`/api/input_prompt/${promptId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update prompt");
+      }
+
+      setNewPromptId(null);
+      refreshPrompts();
+    } catch (err) {
+      console.error("Failed to update prompt", err);
+    }
   };
 
   if (promptLibraryIsLoading) {
@@ -64,7 +76,7 @@ const Main = () => {
   if (promptLibraryError || !promptLibrary) {
     return (
       <ErrorCallout
-        errorTitle="Error loading standard answers"
+        errorTitle="Erroor loading standard answers"
         errorMsg={
           promptLibraryError.info?.message ||
           promptLibraryError.message.info?.detail
@@ -100,7 +112,7 @@ const Main = () => {
       {newPromptId && (
         <EditPromptModal
           promptId={newPromptId}
-          onSubmit={createInputPrompt}
+          editInputPrompt={editInputPrompt}
           onClose={() => setNewPromptId(null)}
         />
       )}

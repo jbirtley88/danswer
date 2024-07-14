@@ -40,6 +40,7 @@ def get_input_prompt(
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> InputPromptSnapshot:
+    print("HI")
     input_prompt = fetch_input_prompt_by_id(
         id=input_prompt_id,
         user_id=user.id if user is not None else None,
@@ -77,6 +78,7 @@ def update_input_prompt_endpoint(
             input_prompt_id=input_prompt_id,
             prompt=update_input_prompt_request.prompt,
             content=update_input_prompt_request.content,
+            active=update_input_prompt_request.active,
             db_session=db_session,
         )
     except ValueError as e:

@@ -16,7 +16,8 @@ import {
 } from "react-icons/fi";
 import ChatInputOption from "./ChatInputOption";
 import { FaBrain } from "react-icons/fa";
-import { InputPrompt, Persona } from "@/app/admin/assistants/interfaces";
+import { Persona } from "@/app/admin/assistants/interfaces";
+import { InputPrompt } from "@/app/admin/prompt-library/interfaces";
 import { FilterManager, LlmOverrideManager } from "@/lib/hooks";
 import { SelectedFilterDisplay } from "./SelectedFilterDisplay";
 import { useChatContext } from "@/components/context/ChatContext";

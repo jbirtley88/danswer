@@ -18,14 +18,6 @@ export interface Prompt {
   default_prompt: boolean;
 }
 
-export interface InputPrompt {
-  id: number;
-  prompt: string;
-  content: string;
-  is_public: boolean;
-  active: boolean;
-}
-
 export interface Persona {
   id: number;
   name: string;

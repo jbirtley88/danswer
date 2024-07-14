@@ -12,7 +12,8 @@ import {
   ValidSources,
 } from "@/lib/types";
 import { ChatSession } from "@/app/chat/interfaces";
-import { InputPrompt, Persona } from "@/app/admin/assistants/interfaces";
+import { Persona } from "@/app/admin/assistants/interfaces";
+import { InputPrompt } from "@/app/admin/prompt-library/interfaces";
 import { FullEmbeddingModelResponse } from "@/app/admin/models/embedding/components/types";
 import { Settings } from "@/app/admin/settings/interfaces";
 import { fetchLLMProvidersSS } from "@/lib/llm/fetchLLMs";

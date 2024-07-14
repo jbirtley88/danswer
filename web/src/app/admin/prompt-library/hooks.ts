@@ -1,6 +1,5 @@
-import { errorHandlingFetcher } from "@/lib/fetcher";
-import useSWR, { mutate } from "swr";
-import { InputPrompt } from "../assistants/interfaces";
+import useSWR from "swr";
+import { InputPrompt } from "./interfaces";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 

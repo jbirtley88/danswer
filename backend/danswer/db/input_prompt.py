@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import and_
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -45,6 +44,7 @@ def update_input_prompt(
     input_prompt_id: int,
     prompt: str,
     content: str,
+    active: bool,
     db_session: Session,
 ) -> InputPrompt:
     input_prompt = db_session.scalar(
@@ -61,6 +61,7 @@ def update_input_prompt(
 
     input_prompt.prompt = prompt
     input_prompt.content = content
+    input_prompt.active = active
 
     db_session.commit()
 
@@ -94,7 +95,7 @@ def remove_input_prompt(
     if not validate_user_prompt_authorization(user, input_prompt):
         raise HTTPException(status_code=401, detail="You don't own this prompt")
 
-    input_prompt.active = False
+    db_session.delete(input_prompt)
     db_session.commit()
 
 
@@ -102,9 +103,7 @@ def fetch_input_prompt_by_id(
     id: int, user_id: UUID | None, db_session: Session
 ) -> InputPrompt:
     try:
-        query = select(InputPrompt).where(
-            InputPrompt.id == id, InputPrompt.active == True  # noqa
-        )
+        query = select(InputPrompt).where(InputPrompt.id == id)
 
         if user_id:
             query = query.where(
@@ -127,19 +126,16 @@ def fetch_input_prompt_by_id(
 
 
 def fetch_input_prompts_by_user(
-    user_id: UUID | None, db_session: Session
+    db_session: Session,
+    user_id: UUID | None,
+    active: bool | None = None,
 ) -> list[InputPrompt]:
-    if user_id is None:
-        return list(
-            db_session.scalars(
-                select(InputPrompt).where(and_(InputPrompt.active == True))  # noqa
-            ).all()
-        )
+    query = select(InputPrompt)
 
-    return list(
-        db_session.scalars(
-            select(InputPrompt).where(
-                InputPrompt.user_id == user_id, InputPrompt.active == True  # noqa
-            )
-        ).all()
-    )
+    if user_id is not None:
+        query = query.where(InputPrompt.user_id == user_id)
+
+    if active is not None:
+        query = query.where(InputPrompt.active == active)
+
+    return list(db_session.scalars(query).all())

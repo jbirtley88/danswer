@@ -16,12 +16,14 @@ class CreateInputPromptRequest(BaseModel):
 class UpdateInputPromptRequest(BaseModel):
     prompt: str
     content: str
+    active: bool
 
 
 class InputPromptResponse(BaseModel):
     id: int
     prompt: str
     content: str
+    active: bool
 
 
 class InputPromptListResponse(BaseModel):
@@ -39,13 +41,6 @@ class InputPromptSnapshot(BaseModel):
     def from_model(
         cls, input_prompt: InputPrompt, allow_deleted: bool = False
     ) -> "InputPromptSnapshot":
-        if not input_prompt.active:
-            error_msg = f"InputPrompt with ID {input_prompt.id} has been deleted"
-            if not allow_deleted:
-                raise ValueError(error_msg)
-            else:
-                logger.warning(error_msg)
-
         return InputPromptSnapshot(
             id=input_prompt.id,
             prompt=input_prompt.prompt,

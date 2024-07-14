@@ -1,38 +1,22 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import useSWR from "swr";
 import { ModalWrapper } from "@/app/chat/modal/ModalWrapper";
 import { Button, Textarea, TextInput } from "@tremor/react";
 import { useInputPrompt } from "../hooks";
-import { updateInputPrompt } from "../lib";
-
-interface PromptData {
-  id: number;
-  prompt: string;
-  content: string;
-  is_public: boolean;
-}
-
-interface EditPromptModalProps {
-  onClose: () => void;
-  onSubmit: (promptData: PromptData) => void;
-  promptId: number;
-}
+import { EditPromptModalProps } from "../interfaces";
 
 const EditPromptSchema = Yup.object().shape({
   prompt: Yup.string().required("Title is required"),
   content: Yup.string().required("Content is required"),
-  is_public: Yup.boolean(),
+  active: Yup.boolean(),
 });
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-const EditPromptModal: React.FC<EditPromptModalProps> = ({
+const EditPromptModal = ({
   onClose,
-  onSubmit,
   promptId,
-}) => {
+  editInputPrompt,
+}: EditPromptModalProps) => {
   const { data: promptData, error } = useInputPrompt(promptId);
 
   if (error) return <div>Failed to load prompt data</div>;
@@ -44,32 +28,10 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({
         initialValues={{
           prompt: promptData.prompt,
           content: promptData.content,
-          is_public: promptData.is_public,
+          active: promptData.active,
         }}
         validationSchema={EditPromptSchema}
-        onSubmit={async (values, { setSubmitting }) => {
-          try {
-            const response = await fetch(`/api/input_prompt/${promptId}`, {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(values),
-            });
-
-            if (!response.ok) {
-              throw new Error("Failed to update prompt");
-            }
-
-            const updatedPrompt = await response.json();
-            onSubmit(updatedPrompt);
-            setSubmitting(false);
-            onClose();
-          } catch (err) {
-            console.error("Failed to update prompt", err);
-            setSubmitting(false);
-          }
-        }}
+        onSubmit={(values) => editInputPrompt(promptId, values)}
       >
         {({ isSubmitting, values }) => (
           <Form>
@@ -131,8 +93,8 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({
 
               <div>
                 <label className="flex items-center">
-                  <Field type="checkbox" name="is_public" className="mr-2" />
-                  Make this prompt public
+                  <Field type="checkbox" name="active" className="mr-2" />
+                  Active prompt
                 </label>
               </div>
             </div>
@@ -145,7 +107,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({
                   isSubmitting ||
                   (values.prompt === promptData.prompt &&
                     values.content === promptData.content &&
-                    values.is_public === promptData.is_public)
+                    values.active === promptData.active)
                 }
               >
                 {isSubmitting ? "Updating..." : "Update prompt"}

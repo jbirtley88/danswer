@@ -149,7 +149,8 @@ class InputPrompt(Base):
     prompt: Mapped[str] = mapped_column(String)
     content: Mapped[str] = mapped_column(String)
     active: Mapped[bool] = mapped_column(Boolean)
-    user: Mapped[User | None] = relationship("User", back_populates="personas")
+    user: Mapped[User | None] = relationship("User", back_populates="input_prompts")
+
     user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
 
 
