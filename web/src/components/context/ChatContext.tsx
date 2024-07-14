@@ -9,7 +9,7 @@ import {
   ValidSources,
 } from "@/lib/types";
 import { ChatSession } from "@/app/chat/interfaces";
-import { Persona } from "@/app/admin/assistants/interfaces";
+import { InputPrompt, Persona } from "@/app/admin/assistants/interfaces";
 import { LLMProviderDescriptor } from "@/app/admin/models/llm/interfaces";
 import { Folder } from "@/app/chat/folders/interfaces";
 
@@ -23,6 +23,7 @@ interface ChatContextProps {
   llmProviders: LLMProviderDescriptor[];
   folders: Folder[];
   openedFolders: Record<string, boolean>;
+  userInputPrompts: InputPrompt[];
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);

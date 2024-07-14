@@ -96,6 +96,7 @@ export function ChatPage({
     llmProviders,
     folders,
     openedFolders,
+    userInputPrompts,
   } = useChatContext();
 
   const filteredAssistants = orderAssistantsForUser(availablePersonas, user);
@@ -1083,7 +1084,7 @@ export function ChatPage({
       setEditingRetrievalEnabled(false);
     }
   };
-  console.log(hasPerformedInitialScroll);
+
   return (
     <>
       <HealthCheckBanner />
@@ -1538,6 +1539,7 @@ export function ChatPage({
                         )}
 
                         <ChatInputBar
+                          inputPrompts={userInputPrompts}
                           onSetSelectedAssistant={(
                             alternativeAssistant: Persona | null
                           ) => {

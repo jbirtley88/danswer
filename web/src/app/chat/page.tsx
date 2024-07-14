@@ -36,6 +36,7 @@ export default async function Page({
     finalDocumentSidebarInitialWidth,
     shouldShowWelcomeModal,
     shouldDisplaySourcesIncompleteModal,
+    userInputPrompts,
   } = data;
 
   return (
@@ -59,6 +60,7 @@ export default async function Page({
           llmProviders,
           folders,
           openedFolders,
+          userInputPrompts,
         }}
       >
         <ChatPage

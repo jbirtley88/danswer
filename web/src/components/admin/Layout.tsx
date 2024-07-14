@@ -12,6 +12,7 @@ import {
   DatabaseIcon,
   KeyIcon,
   ClipboardIcon,
+  BookstackIcon,
 } from "@/components/icons/icons";
 import { User } from "@/lib/types";
 import {
@@ -165,6 +166,15 @@ export async function Layout({ children }: { children: React.ReactNode }) {
                       </div>
                     ),
                     link: "/admin/standard-answer",
+                  },
+                  {
+                    name: (
+                      <div className="flex">
+                        <BookstackIcon size={18} />
+                        <div className="ml-1">Prompt Library</div>
+                      </div>
+                    ),
+                    link: "/admin/prompt-library",
                   },
                 ],
               },
