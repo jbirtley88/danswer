@@ -113,7 +113,10 @@ export function ChatInputBar({
   };
 
   const hidePrompts = () => {
-    setShowPrompts(false);
+    setTimeout(() => {
+      setShowPrompts(false);
+    }, 50);
+
     setTabbingIconIndex(0);
   };
 
@@ -148,34 +151,37 @@ export function ChatInputBar({
     };
   }, []);
 
-  // Complete user input handling
+  const handleAssistantInput = (text: string) => {
+    if (!text.startsWith("@")) {
+      hideSuggestions();
+    } else {
+      const match = text.match(/(?:\s|^)@(\w*)$/);
+      if (match) {
+        setShowSuggestions(true);
+      } else {
+        hideSuggestions();
+      }
+    }
+  };
+
+  const handlePromptInput = (text: string) => {
+    if (!text.startsWith("/")) {
+      hidePrompts();
+    } else {
+      const promptMatch = text.match(/(?:\s|^)\/(\w*)$/);
+      if (promptMatch) {
+        setShowPrompts(true);
+      } else {
+        hidePrompts();
+      }
+    }
+  };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = event.target.value;
     setMessage(text);
-
-    if (!text.startsWith("@")) {
-      hideSuggestions();
-    }
-
-    // If looking for an assistant...fup
-    const match = text.match(/(?:\s|^)@(\w*)$/);
-    if (match) {
-      setShowSuggestions(true);
-    } else {
-      hideSuggestions();
-    }
-
-    if (!text.startsWith("/")) {
-      hidePrompts();
-    }
-
-    // If looking for an assistant...fup
-    const promptMatch = text.match(/(?:\s|^)\/(\w*)$/);
-    if (promptMatch) {
-      setShowPrompts(true);
-    } else {
-      hidePrompts();
-    }
+    handleAssistantInput(text);
+    handlePromptInput(text);
   };
 
   const filteredPersonas = personas.filter((persona) =>
@@ -230,8 +236,12 @@ export function ChatInputBar({
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
+
       setTabbingIconIndex((tabbingIconIndex) =>
-        Math.min(tabbingIconIndex + 1, filteredPersonas.length)
+        Math.min(
+          tabbingIconIndex + 1,
+          showPrompts ? filteredPrompts.length : filteredPersonas.length
+        )
       );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
@@ -439,6 +449,8 @@ export function ChatInputBar({
               onKeyDown={(event) => {
                 if (
                   event.key === "Enter" &&
+                  !showPrompts &&
+                  !showSuggestions &&
                   !event.shiftKey &&
                   message &&
                   !isStreaming
