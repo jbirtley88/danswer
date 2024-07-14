@@ -22,6 +22,8 @@ export interface InputPrompt {
   id: number;
   prompt: string;
   content: string;
+  is_public: boolean;
+  active: boolean;
 }
 
 export interface Persona {

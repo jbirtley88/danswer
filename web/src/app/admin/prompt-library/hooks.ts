@@ -1,26 +1,33 @@
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { StandardAnswerCategory, StandardAnswer } from "@/lib/types";
 import useSWR, { mutate } from "swr";
+import { InputPrompt } from "../assistants/interfaces";
 
-export const useStandardAnswerCategories = () => {
-  const url = "/api/manage/admin/standard-answer/category";
-  const swrResponse = useSWR<StandardAnswerCategory[]>(
-    url,
-    errorHandlingFetcher
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+export const useInputPrompts = () => {
+  const { data, error, mutate } = useSWR<InputPrompt[]>(
+    "/api/input_prompt",
+    fetcher
   );
 
   return {
-    ...swrResponse,
-    refreshStandardAnswerCategories: () => mutate(url),
+    data,
+    error,
+    isLoading: !error && !data,
+    refreshInputPrompts: mutate,
   };
 };
 
-export const useStandardAnswers = () => {
-  const url = "/api/manage/admin/standard-answer";
-  const swrResponse = useSWR<StandardAnswer[]>(url, errorHandlingFetcher);
+export const useInputPrompt = (id: number) => {
+  const { data, error, mutate } = useSWR<InputPrompt>(
+    `/api/input_prompt/${id}`,
+    fetcher
+  );
 
   return {
-    ...swrResponse,
-    refreshStandardAnswers: () => mutate(url),
+    data,
+    error,
+    isLoading: !error && !data,
+    refreshInputPrompt: mutate,
   };
 };

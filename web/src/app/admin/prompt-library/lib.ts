@@ -1,86 +1,77 @@
-export interface StandardAnswerCategoryCreationRequest {
-  name: string;
+import useSWR from "swr";
+
+export interface InputPrompt {
+  id: number;
+  prompt: string;
+  content: string;
+  is_public: boolean;
 }
 
-export interface StandardAnswerCreationRequest {
-  keyword: string;
-  answer: string;
-  categories: number[];
+export interface CreateInputPromptRequest {
+  prompt: string;
+  content: string;
+  is_public: boolean;
 }
 
-const buildRequestBodyFromStandardAnswerCategoryCreationRequest = (
-  request: StandardAnswerCategoryCreationRequest
+const buildRequestBodyFromInputPromptCreationRequest = (
+  request: CreateInputPromptRequest
 ) => {
   return JSON.stringify({
-    name: request.name,
+    prompt: request.prompt,
+    content: request.content,
+    is_public: request.is_public,
   });
 };
 
-export const createStandardAnswerCategory = async (
-  request: StandardAnswerCategoryCreationRequest
-) => {
-  return fetch("/api/manage/admin/standard-answer/category", {
+export const createInputPrompt = async (
+  request: CreateInputPromptRequest
+): Promise<InputPrompt> => {
+  const response = await fetch("/api/input_prompt", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: buildRequestBodyFromStandardAnswerCategoryCreationRequest(request),
+    body: buildRequestBodyFromInputPromptCreationRequest(request),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Failed to create input prompt");
+  }
+
+  return response.json();
 };
 
-export const updateStandardAnswerCategory = async (
+export const updateInputPrompt = async (
   id: number,
-  request: StandardAnswerCategoryCreationRequest
-) => {
-  return fetch(`/api/manage/admin/standard-answer/category/${id}`, {
+  request: CreateInputPromptRequest
+): Promise<InputPrompt> => {
+  const response = await fetch(`/api/input_prompt/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: buildRequestBodyFromStandardAnswerCategoryCreationRequest(request),
+    body: buildRequestBodyFromInputPromptCreationRequest(request),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Failed to update input prompt");
+  }
+
+  return response.json();
 };
 
-const buildRequestBodyFromStandardAnswerCreationRequest = (
-  request: StandardAnswerCreationRequest
-) => {
-  return JSON.stringify({
-    keyword: request.keyword,
-    answer: request.answer,
-    categories: request.categories,
-  });
-};
-
-export const createStandardAnswer = async (
-  request: StandardAnswerCreationRequest
-) => {
-  return fetch("/api/manage/admin/standard-answer", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: buildRequestBodyFromStandardAnswerCreationRequest(request),
-  });
-};
-
-export const updateStandardAnswer = async (
-  id: number,
-  request: StandardAnswerCreationRequest
-) => {
-  return fetch(`/api/manage/admin/standard-answer/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: buildRequestBodyFromStandardAnswerCreationRequest(request),
-  });
-};
-
-export const deleteStandardAnswer = async (id: number) => {
-  return fetch(`/api/manage/admin/standard-answer/${id}`, {
+export const deleteInputPrompt = async (id: number): Promise<void> => {
+  const response = await fetch(`/api/input_prompt/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Failed to delete input prompt");
+  }
 };

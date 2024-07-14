@@ -204,7 +204,6 @@ export function ChatInputBar({
       ((showSuggestions && filteredPersonas.length > 0) || showPrompts) &&
       (e.key === "Tab" || e.key == "Enter")
     ) {
-      console.log("PREVENT");
       e.preventDefault();
       if (
         (tabbingIconIndex == filteredPersonas.length && showSuggestions) ||

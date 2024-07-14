@@ -35,6 +35,7 @@ class InputPromptSnapshot(BaseModel):
     content: str
     active: bool
     is_public: bool
+    user_id: int | None
 
     @classmethod
     def from_model(
@@ -53,4 +54,5 @@ class InputPromptSnapshot(BaseModel):
             content=input_prompt.content,
             active=input_prompt.active,
             is_public=input_prompt.is_public,
+            user_id=input_prompt.user_id,
         )
