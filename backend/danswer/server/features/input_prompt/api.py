@@ -78,9 +78,8 @@ def update_input_prompt_endpoint(
             db_session=db_session,
         )
     except ValueError as e:
-        error_msg = "Error occured with udpating input prompt"
+        error_msg = "Error occured while udpating input prompt"
         logger.warn(f"{error_msg}. Stack trace: {e}")
-
         raise HTTPException(status_code=404, detail=error_msg)
 
     return InputPromptSnapshot.from_model(updated_input_prompt)
@@ -94,5 +93,8 @@ def delete_input_prompt(
 ) -> None:
     try:
         remove_input_prompt(user, input_prompt_id, db_session)
+
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        error_msg = "Error occured while deleting input prompt"
+        logger.warn(f"{error_msg}. Stack trace: {e}")
+        raise HTTPException(status_code=404, detail=error_msg)

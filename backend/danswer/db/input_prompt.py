@@ -79,7 +79,7 @@ def remove_input_prompt(
         raise ValueError(f"No input prompt with id {input_prompt_id}")
 
     if not validate_user_prompt_authorization(user, input_prompt):
-        raise HTTPException(status_code=401, detail="You don't own this prompt")
+        raise HTTPException(status_code=401, detail="You do not own this prompt")
 
     db_session.delete(input_prompt)
     db_session.commit()
@@ -88,27 +88,22 @@ def remove_input_prompt(
 def fetch_input_prompt_by_id(
     id: int, user_id: UUID | None, db_session: Session
 ) -> InputPrompt:
-    try:
-        query = select(InputPrompt).where(InputPrompt.id == id)
+    query = select(InputPrompt).where(InputPrompt.id == id)
 
-        if user_id:
-            query = query.where(
-                (InputPrompt.user_id == user_id) | (InputPrompt.user_id is None)
-            )
-        else:
-            # If no user_id is provided, only fetch prompts without a user_id (aka public)
-            query = query.where(InputPrompt.user_id == None)  # noqa
+    if user_id:
+        query = query.where(
+            (InputPrompt.user_id == user_id) | (InputPrompt.user_id is None)
+        )
+    else:
+        # If no user_id is provided, only fetch prompts without a user_id (aka public)
+        query = query.where(InputPrompt.user_id == None)  # noqa
 
-        result = db_session.scalar(query)
+    result = db_session.scalar(query)
 
-        if result is None:
-            raise HTTPException(500, "Input prompt not found or access denied")
+    if result is None:
+        raise HTTPException(422, "No input prompt found")
 
-        return result
-
-    except Exception as e:
-        logger.warn(e)
-        raise HTTPException(500, "Something happened")
+    return result
 
 
 def fetch_input_prompts_by_user(
